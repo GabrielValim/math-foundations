@@ -1,5 +1,6 @@
 from fractions import Fraction
 from typing import List
+import math
 
 
 class Number:
@@ -9,21 +10,26 @@ class Number:
         except ValueError:
             raise ValueError(f"Invalid value: {value}")
 
+    def is_real(self) -> bool:
+        return math.isfinite(self.value)
+
     def is_natural(self) -> bool:
-        return self.value.is_integer() and self.value >= 0
+        return self.is_real() and self.value.is_integer() and self.value >= 0
 
     def is_integer(self) -> bool:
-        return self.value.is_integer()
+        return self.is_real() and self.value.is_integer()
 
     def is_rational(self) -> bool:
+        if not self.is_real():
+            return False
         try:
             fraction = Fraction(self.value).limit_denominator()
             return float(fraction) == self.value
-        except:
+        except Exception:
             return False
 
     def is_irrational(self) -> bool:
-        return not self.is_rational()
+        return self.is_real() and not self.is_rational()
 
 
 class NumberClassifier:
@@ -31,6 +37,9 @@ class NumberClassifier:
         self.number = number
 
     def classify(self) -> List[str]:
+        if not self.number.is_real():
+            return ["Not a real number"]
+
         sets: List[str] = []
 
         if self.number.is_natural():
